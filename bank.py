@@ -1,17 +1,8 @@
 from datetime import datetime
 from decimal import Decimal
-import boto3
 import json
-from boto3.dynamodb.conditions import Key, Attr
-
-import os
-from dotenv import load_dotenv
-load_dotenv()
-
-dyn = boto3.resource("dynamodb",
-                     aws_access_key_id=os.getenv("AWS_ACCESS"), aws_secret_access_key=os.getenv("AWS_SECRET"),
-                     region_name=os.getenv("AWS_REGION"), endpoint_url="http://dynamodb.eu-west-1.amazonaws.com")
-table = dyn.Table("bank")
+from boto3.dynamodb.conditions import Key
+from db import dyn_connection
 
 
 class DecimalEncoder(json.JSONEncoder):
@@ -32,7 +23,7 @@ class Bank:
 
         if type(name) != str:
             raise TypeError("Name must be a valid string.")
-
+        self.table = dyn_connection()
         self.name = name
         ts = self.get_date()
         self.save_to_db(ts, self.name, initial)
@@ -71,7 +62,7 @@ class Bank:
         filter_exp = Key('name').eq(self.name)
         proj_exp = "ts, tr"
 
-        response = table.scan(
+        response = self.table.scan(
             FilterExpression=filter_exp,
             ProjectionExpression=proj_exp
         )
@@ -96,9 +87,8 @@ class Bank:
 
         return s
 
-    @staticmethod
-    def save_to_db(ts, name, amount):
-        resp = table.put_item(Item={
+    def save_to_db(self, ts, name, amount):
+        resp = self.table.put_item(Item={
             'ts': Decimal(ts),
             'name': name,
             'tr': Decimal(amount)
