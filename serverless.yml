@@ -1,0 +1,18 @@
+service: bank
+
+provider:
+  name: aws
+  runtime: python3.7
+  region: eu-west-1
+  stackName: ft-bank
+
+functions:
+  bank:
+    handler: handler.bank
+    events:
+      - http:
+          path: bank
+          method: get
+
+plugins:
+  - serverless-python-requirements
