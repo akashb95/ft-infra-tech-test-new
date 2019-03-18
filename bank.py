@@ -5,6 +5,7 @@ from boto3.dynamodb.conditions import Key
 from db import dyn_connection
 
 
+# taken from https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.Python.03.html
 class DecimalEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, Decimal):
@@ -17,6 +18,11 @@ class DecimalEncoder(json.JSONEncoder):
 
 class Bank:
     def __init__(self, initial, name):
+        """
+
+        :param initial: Initial amount
+        :param name: Name of party.
+        """
         initial = self.checks(initial)
 
         self.amount = initial
@@ -31,6 +37,11 @@ class Bank:
         return
 
     def deposit(self, amount):
+        """
+        Log money deposit and the timestamp.
+        :param amount: money to add to account
+        :return: new balance
+        """
         amount = self.checks(amount)
 
         ts = self.get_date()
@@ -42,6 +53,11 @@ class Bank:
         return self.get_balance()
 
     def withdraw(self, amount):
+        """
+        Log money withdrawal and the timestamp
+        :param amount: money to withdraw from account
+        :return: new balance
+        """
         amount = self.checks(amount)
 
         ts = self.get_date()
@@ -55,9 +71,17 @@ class Bank:
         return self.get_balance()
 
     def get_balance(self):
+        """
+        Get bank balance
+        :return: current bank balance to 2 d.p.
+        """
         return round(self.amount, 2)
 
     def statement(self):
+        """
+        Prints the bank statement for transactions so far.
+        :return: str
+        """
         s = "| date || credit || debit || balance |\n"
         filter_exp = Key('name').eq(self.name)
         proj_exp = "ts, tr"
@@ -88,6 +112,13 @@ class Bank:
         return s
 
     def save_to_db(self, ts, name, amount):
+        """
+        Save transaction to DB
+        :param ts: timestamp
+        :param name: Party name
+        :param amount: change in balance
+        :return: db response
+        """
         resp = self.table.put_item(Item={
             'ts': Decimal(ts),
             'name': name,
@@ -98,6 +129,11 @@ class Bank:
 
     @staticmethod
     def checks(amount):
+        """
+        checks that the transaction amount is greater than 0.
+        :param amount: transaction amount
+        :return: Decimal
+        """
         if type(amount) != int and type(amount) != float:
             raise TypeError("Expecting float, or int, as transaction amount. Got {t} instead.".format(t=type(amount)))
 

@@ -1,5 +1,6 @@
 service: bank
 
+# AWS details
 provider:
   name: aws
   runtime: python3.7
@@ -7,6 +8,7 @@ provider:
   stackName: ft-bank
 
 functions:
+  #
   bank:
     handler: handler.bank
     events:

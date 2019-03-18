@@ -1,8 +1,19 @@
+"""
+Handler functions for Serverless endpoints
+"""
+
 import json
 from bank import Bank
 
 
 def bank(event, context):
+    """
+    Does sample banking transactions
+    :param event:
+    :param context:
+    :return:
+    """
+
     b = Bank(1000, "Akash")
     b.deposit(100)
     b.withdraw(900)
