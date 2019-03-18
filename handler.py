@@ -1,5 +1,7 @@
 """
 Handler functions for Serverless endpoints
+Adapted from:
+https://medium.com/devopslinks/aws-lambda-serverless-framework-python-part-1-a-step-by-step-hello-world-4182202aba4a
 """
 
 import json
